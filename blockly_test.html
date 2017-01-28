@@ -28,9 +28,11 @@
     <script src="blockly/blockly_compressed.js"></script>
     <script src="blockly/blocks_compressed.js"></script>
     <script src="blockly/msg/js/en.js"></script>
-    <script src="blockly/acorn_interpreter.js"></script>
+    <script src="otherjs/acorn_interpreter.js"></script>
+    <script src="otherjs/filesaver.min.js"></script>
     <script src="blockly/javascript_compressed.js"></script>
     <script src="blockly/lua_compressed.js"></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.2/require.min.js"></script>-->
 
 </head>
 
@@ -46,14 +48,28 @@
             <div class="btn-group-vertical" role="group" aria-label="...">
                 <button type="button" onclick="executeWorkspace()" class="btn btn-default">Run Workspace</button>
                 <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Generate Code <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="#" onclick="showJavaScript()">JavaScript</a></li>
+                    <li><a href="#" onclick="showLua()">Lua</a></li>
+                </ul>
+                </div>
+                <div class="btn-group">
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Generate Code <span class="caret"></span>
+                        Save Code <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a href="#" onclick="showJavaScript()">JavaScript</a></li>
-                        <li><a href="#" onclick="showLua()">Lua</a></li>
+                        <li><a href="#" onclick="saveFile('test_file', 'js')">JavaScript</a></li>
+                        <li><a href="#" onclick="saveFile('test_file', 'lua')">Lua</a></li>
+                        <li><a href="#" onclick="saveFile('test_file', 'xml')">Blockly (xml)</a> </li>
                     </ul>
                 </div>
+                <button type="button" class="btn btn-default btn-file" data-toggle="modal" data-target="#fileModal">
+                    Load Save
+                    <!--Load Save <input type="file" style="display: none;" id="fileInput">-->
+                </button>
             </div>
         </div>
         <div class="col-md-10">
@@ -66,7 +82,24 @@
         <!--<div id="blocklyDiv" style="height: 450px"></div>-->
     <!--</div>-->
 
+    <!-- Modal -->
+    <div class="modal fade" id="fileModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Upload a Saved Blockly Workspace</h4>
+                </div>
+                <div class="modal-body">
+                    <h5>Files must be Blockly xml files.</h5>
 
+                    <label class="btn btn-default btn-file">
+                        Browse <input type="file" style="display: none;" id="fileInput">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <xml xmlns="http://www.w3.org/1999/xhtml" id="toolbox" style="display: none;">
         <category name="Logic" colour="#5C81A6">
@@ -457,10 +490,7 @@
 
         var executeWorkspace = function() {
             var code = Blockly.JavaScript.workspaceToCode(workspace);
-            window.alert(code);
             var myInterpreter = new Interpreter(code, initApi);
-//            var myCode = 'var a=1; for(var i=0;i<4;i++){a*=i;} a;';
-//            var myInterpreter = new Interpreter(myCode);
             myInterpreter.run();
         };
 
@@ -473,6 +503,47 @@
             var code = Blockly.Lua.workspaceToCode(workspace);
             window.alert(code);
         };
+
+        var saveFile = function (fileName, extension) {
+            var code = "";
+            if (extension === "js") {
+                code = Blockly.JavaScript.workspaceToCode(workspace);
+            } else if (extension === "lua") {
+                code = Blockly.Lua.workspaceToCode(workspace);
+            } else if (extension === "xml") {
+                var xml = Blockly.Xml.workspaceToDom(workspace);
+                code = Blockly.Xml.domToPrettyText(xml);
+            }
+//            var FileSaver = require('file-saver');
+            var blob = new Blob([code], {type: "text/plain;charset=utf-8"});
+            var fullFileName = fileName.trim() + "." + extension;
+//            window.alert(fullFileName);
+            saveAs(blob, fullFileName);
+        };
+
+        window.onload = function() {
+            var fileInput = document.getElementById('fileInput');
+
+            fileInput.addEventListener('change', function(e) {
+//                window.alert("Triggered");
+                var file = fileInput.files[0];
+                var textType = /text.*/;
+
+                if (file.type.match(textType)) {
+                    var reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        var xml_text = reader.result;
+                        var xml = Blockly.Xml.textToDom(xml_text);
+                        Blockly.Xml.domToWorkspace(xml, workspace);
+                    };
+
+                    reader.readAsText(file);
+                } else {
+                    window.alert("File not supported!");
+                }
+            });
+        }
     </script>
 </div> <!-- /container -->
 
