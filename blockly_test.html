@@ -513,11 +513,8 @@
         var workspace = Blockly.inject('blocklyDiv', {toolbox: document.getElementById('toolbox')});
 
         var autoSaveChanges = function (event) {
-            if (event.type == Blockly.Events.CHANGE) {
-                var xml = Blockly.Xml.workspaceToDom(workspace);
-                var code = Blockly.Xml.domToText(xml);
-                localStorage.autoSave = code;
-            }
+            var xml = Blockly.Xml.workspaceToDom(workspace);
+            localStorage.autoSave = Blockly.Xml.domToText(xml);
         };
 
         workspace.addChangeListener(autoSaveChanges);
