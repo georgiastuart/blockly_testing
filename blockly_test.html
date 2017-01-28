@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Static Top Navbar Example for Bootstrap</title>
+    <title>Blocky Testing</title>
 
     <!-- Bootstrap core CSS -->
     <!--<link href="../../dist/css/bootstrap.min.css" rel="stylesheet">-->
@@ -19,7 +19,8 @@
 
     <!-- Optional theme -->
     <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">-->
-    <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/paper/bootstrap.min.css" rel="stylesheet" integrity="sha384-awusxf8AUojygHf2+joICySzB780jVvQaVCAt1clU3QsyAitLGul28Qxb2r1e5g+" crossorigin="anonymous">
+    <!--<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css" rel="stylesheet" integrity="sha384-awusxf8AUojygHf2+joICySzB780jVvQaVCAt1clU3QsyAitLGul28Qxb2r1e5g+" crossorigin="anonymous">-->
+    <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/journal/bootstrap.min.css" rel="stylesheet">
     <!--<link href="http://getbootstrap.com/examples/sticky-footer/sticky-footer.css" rel="stylesheet">-->
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <!--<link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">-->
@@ -27,6 +28,10 @@
     <script src="blockly/blockly_compressed.js"></script>
     <script src="blockly/blocks_compressed.js"></script>
     <script src="blockly/msg/js/en.js"></script>
+    <script src="blockly/acorn_interpreter.js"></script>
+    <script src="blockly/javascript_compressed.js"></script>
+    <script src="blockly/lua_compressed.js"></script>
+
 </head>
 
 <body>
@@ -36,13 +41,31 @@
     <div class="page-header">
         <h1>Messing around with Blocky</h1>
     </div>
+    <div class="row">
+        <div class="col-md-2">
+            <div class="btn-group-vertical" role="group" aria-label="...">
+                <button type="button" onclick="executeWorkspace()" class="btn btn-default">Run Workspace</button>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Generate Code <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" onclick="showJavaScript()">JavaScript</a></li>
+                        <li><a href="#" onclick="showLua()">Lua</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-10">
+            <div id="blocklyDiv" style="height: 450px"></div>
+        </div>
 
-    <div id="blocklyDiv" style="height: 450px"></div>
-        <!--<div class="col-md-8" id="blocklyDiv"></div>-->
+    </div>
 
-        <!--<div class="col-md-4">-->
-            <!--test 2-->
-        <!--</div><div>-->
+    <!--<div class="row">-->
+        <!--<div id="blocklyDiv" style="height: 450px"></div>-->
+    <!--</div>-->
+
 
 
     <xml xmlns="http://www.w3.org/1999/xhtml" id="toolbox" style="display: none;">
@@ -404,8 +427,52 @@
         <category name="Functions" colour="#9A5CA6" custom="PROCEDURE"></category>
     </xml>
     <script>
-        var workspace = Blockly.inject('blocklyDiv',
-            {toolbox: document.getElementById('toolbox')});
+        function initApi(interpreter, scope) {
+            // Add an API function for the alert() block.
+            var wrapper = function(text) {
+                text = text ? text.toString() : '';
+                return interpreter.createPrimitive(alert(text));
+            };
+            interpreter.setProperty(scope, 'alert',
+                interpreter.createNativeFunction(wrapper));
+
+            // Add an API function for the prompt() block.
+            var wrapper = function(text) {
+                text = text ? text.toString() : '';
+                return interpreter.createPrimitive(prompt(text));
+            };
+            interpreter.setProperty(scope, 'prompt',
+                interpreter.createNativeFunction(wrapper));
+
+            // Add an API function for highlighting blocks.
+            var wrapper = function(id) {
+                id = id ? id.toString() : '';
+                return interpreter.createPrimitive(highlightBlock(id));
+            };
+            interpreter.setProperty(scope, 'highlightBlock',
+                interpreter.createNativeFunction(wrapper));
+        }
+
+        var workspace = Blockly.inject('blocklyDiv', {toolbox: document.getElementById('toolbox')});
+
+        var executeWorkspace = function() {
+            var code = Blockly.JavaScript.workspaceToCode(workspace);
+            window.alert(code);
+            var myInterpreter = new Interpreter(code, initApi);
+//            var myCode = 'var a=1; for(var i=0;i<4;i++){a*=i;} a;';
+//            var myInterpreter = new Interpreter(myCode);
+            myInterpreter.run();
+        };
+
+        var showJavaScript = function () {
+            var code = Blockly.JavaScript.workspaceToCode(workspace);
+            window.alert(code);
+        };
+
+        var showLua = function () {
+            var code = Blockly.Lua.workspaceToCode(workspace);
+            window.alert(code);
+        };
     </script>
 </div> <!-- /container -->
 
