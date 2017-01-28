@@ -16,11 +16,12 @@
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/utdtheme.min.css">
 
     <!-- Optional theme -->
     <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">-->
     <!--<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css" rel="stylesheet" integrity="sha384-awusxf8AUojygHf2+joICySzB780jVvQaVCAt1clU3QsyAitLGul28Qxb2r1e5g+" crossorigin="anonymous">-->
-    <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet">
+    <!--<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet">-->
     <!--<link href="http://getbootstrap.com/examples/sticky-footer/sticky-footer.css" rel="stylesheet">-->
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <!--<link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">-->
@@ -74,6 +75,7 @@
                     <!--Load Save <input type="file" style="display: none;" id="fileInput">-->
                 </button>
             </div>
+            <button type="button" class="btn btn-danger btn-block" onclick="workspace.clear()" style="margin-top: 10px">Clear Workspace</button>
         </div>
         <div class="col-md-10">
             <div id="blocklyDiv" style="height: 450px"></div>
@@ -114,7 +116,7 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-xs-6">
-                            <button type="button" class="btn btn-default btn-block btn-lg" onclick="restoreLastSession()" data-dismiss="modal">Yes</button>
+                            <button type="button" class="btn btn-success btn-block btn-lg" onclick="restoreLastSession()" data-dismiss="modal">Yes</button>
                         </div>
                         <div class="col-xs-6">
                             <button class="btn btn-default btn-block btn-lg" data-dismiss="modal">No</button>
@@ -510,7 +512,8 @@
                 interpreter.createNativeFunction(wrapper));
         }
 
-        var workspace = Blockly.inject('blocklyDiv', {toolbox: document.getElementById('toolbox')});
+        var workspace = Blockly.inject('blocklyDiv', {toolbox: document.getElementById('toolbox'),
+            grid:{spacing: 20, length: 3, colour: '#ccc', snap: true}, trashcan: true});
 
         var autoSaveChanges = function (event) {
             var xml = Blockly.Xml.workspaceToDom(workspace);
